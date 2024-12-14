@@ -17,10 +17,11 @@ def conv_block(in_channels, out_channels, pool=False):
 
 class ResNet9(nn.Module):
 
-    def __init__(self, in_channels):
+    def __init__(self, in_channels, last_layer=False):
         super().__init__()
 
         POOL = False
+        self.last_layer = last_layer
 
         self.conv1 = conv_block(in_channels, 64)
         self.conv2 = conv_block(64, 128, pool=POOL)
@@ -28,7 +29,8 @@ class ResNet9(nn.Module):
         
         self.conv3 = conv_block(128, 256, pool=POOL)
         self.conv4 = conv_block(256, 512, pool=POOL)
-        self.res2 = nn.Sequential(conv_block(512, 512), conv_block(512, 512))
+        if last_layer:
+            self.res2 = nn.Sequential(conv_block(512, 512), conv_block(512, 512))
         
         # self.classifier = nn.Sequential(
         #     nn.Conv2d(in_channels=512, out_channels=1, kernel_size=3, padding=1),
@@ -40,6 +42,9 @@ class ResNet9(nn.Module):
         state_dict = torch.load(path)
         del state_dict['classifier.3.weight']
         del state_dict['classifier.3.bias']
+        if not self.last_layer:
+            for state in [x for x in state_dict.keys() if 'res2.' in str(x)]:
+                del state_dict[state]
         self.load_state_dict(state_dict)
         self.to('cpu')
 
@@ -49,7 +54,8 @@ class ResNet9(nn.Module):
         out = self.res1(out) + out
         out = self.conv3(out)
         out = self.conv4(out)
-        out = self.res2(out) + out
+        if self.last_layer:
+            out = self.res2(out) + out
         return out
     
 class PatchModel(nn.Module):
@@ -82,7 +88,7 @@ class WholeBlock(nn.Module):
 class WholeModel(nn.Module):
     def __init__(self):
         super().__init__()
-
+        self.name = 'WholeModel'
         self.backbone = ResNet9(3)
         self.decoder = nn.Sequential(
             WholeBlock(512),
@@ -113,6 +119,9 @@ if __name__ == '__main__':
     '''
     model = WholeModel()
     torchinfo.summary(model, input_size=(1, 3, 32, 32), device='cpu')
+
+    print(count_parameters(model.backbone))
+    print(count_parameters(model.decoder))
 
     images = torch.randn((N, 3, 400, 400)).to('cpu')
     out = model(images)

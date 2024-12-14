@@ -11,3 +11,9 @@ def read_json_variable(path, var):
     
 def count_parameters(model):
     return sum((x.numel() for x in model.parameters()))
+
+def get_save_name(model, *configs):
+    name = model.name
+    for el in configs[0]:
+        name += '_' + str(el)
+    return name
