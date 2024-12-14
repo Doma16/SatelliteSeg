@@ -1,6 +1,7 @@
 from CrossValidation import cross_validation
 from model.our_model import WholeModel
 from model.unet import UNet, UNetSmall
+import segmentation_models_pytorch as smp
 
 import torch
 import torch.nn as nn
@@ -43,7 +44,12 @@ def main():
     f1_per_epoch = defaultdict(list)
     for j, (train_loader, test_loader) in enumerate(loaders):
 
-        model = WholeModel().to(device, dtype=DTYPE)
+        model = UNet().to(device, dtype=DTYPE)
+        # Initialize the model
+        load_path = read_json_variable('paths.json', 'load_path')
+        model = UNet()
+        if load_path:
+            model.load_state_dict(torch.load(load_path, map_location=device), strict=False)
         optimizer = optim.Adam(model.parameters(), lr=LR)
 
         num_epochs = NUM_EPOCHS

@@ -1,6 +1,6 @@
 import torch
 
-BATCH_SIZE = 2
+BATCH_SIZE = 1
 SHUFFLE = True
 LR = 1e-4
 DTYPE = torch.float32
