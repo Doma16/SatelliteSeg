@@ -13,7 +13,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-VISUALIZE = False
+VISUALIZE = True
 
 def visualize(image, gt):
     nimg = image.cpu().numpy()
@@ -83,9 +83,9 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=False)
 
     #model = WholeModel().to(device, dtype=DTYPE)
-    model = UNet(num_classes=1).to(device, dtype=DTYPE)
+    model = WholeModel().to(device, dtype=DTYPE)
     load_path = read_json_variable('paths.json', 'save_path')
-    load_path = os.path.join(load_path, get_save_name(model, config)+'.pth')
+    load_path = os.path.join(load_path, get_save_name(model, config)+'_end.pth')
     model.load_state_dict(torch.load(load_path, map_location=device))
     # torchinfo.summary(model, input_size=(1, 3, 400, 400))
 

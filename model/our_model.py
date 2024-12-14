@@ -73,14 +73,15 @@ class PatchModel(nn.Module):
         return out
 
 class WholeBlock(nn.Module):
-    def __init__(self, in_channels):
+    def __init__(self, in_channels, last=False):
         super().__init__()
         DOWN = 8
         self.block = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=in_channels//DOWN, kernel_size=3, padding=1),
             nn.BatchNorm2d(in_channels//DOWN),
-            nn.ReLU(),
         )
+        if not last:
+            self.block.append(nn.ReLU())
 
     def forward(self, xb):
         return self.block(xb)
@@ -93,7 +94,7 @@ class WholeModel(nn.Module):
         self.decoder = nn.Sequential(
             WholeBlock(512),
             WholeBlock(64),
-            WholeBlock(8),
+            WholeBlock(8, last=True),
         )
 
     def forward(self, xb):
