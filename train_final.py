@@ -28,7 +28,6 @@ def train(model, dataloader, criterion, optimizer, device):
 
         #forward
         out = model(img)
-        breakpoint()
         loss = criterion(out, gt)
 
         #backward

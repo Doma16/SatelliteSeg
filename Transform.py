@@ -17,8 +17,17 @@ class Transform(torch.nn.Module):
             v2.ToImage(),
         ])
         
+        self.flip = v2.Compose([
+            v2.RandomHorizontalFlip(p=0.5),
+            v2.RandomVerticalFlip(p=0.5),
+        ])
     def forward(self, image, ground_truth):
-        return self.image_transform(image), self.gt_transform(ground_truth)
+        seed = torch.seed()
+        torch.manual_seed(seed)
+        im = self.flip(self.image_transform(image))
+        torch.manual_seed(seed)
+        gt = self.flip(self.gt_transform(ground_truth))
+        return im, gt
     
 class AdapterTransform(torch.nn.Module):
     def __init__(self):

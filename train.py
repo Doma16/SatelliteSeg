@@ -16,6 +16,8 @@ from tqdm import tqdm
 from collections import defaultdict
 from config import LR, NUM_EPOCHS, DTYPE, config
 
+from losses import BinaryCrossEntropyLoss
+
 def train(model, dataloader, criterion, optimizer, device):
     model.train()
     running_loss = 0.0
@@ -38,18 +40,18 @@ def train(model, dataloader, criterion, optimizer, device):
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     loaders = cross_validation()[:1]
-    criterion = nn.MSELoss()
+    criterion = BinaryCrossEntropyLoss()
 
     precision, recall, f1score = [], [], []
     f1_per_epoch = defaultdict(list)
     for j, (train_loader, test_loader) in enumerate(loaders):
 
-        model = UNet().to(device, dtype=DTYPE)
         # Initialize the model
         load_path = read_json_variable('paths.json', 'load_path')
         model = UNet()
         if load_path:
             model.load_state_dict(torch.load(load_path, map_location=device), strict=False)
+        model = model.to(device, dtype=DTYPE)
         optimizer = optim.Adam(model.parameters(), lr=LR)
 
         num_epochs = NUM_EPOCHS
