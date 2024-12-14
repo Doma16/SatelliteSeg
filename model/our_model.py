@@ -77,7 +77,8 @@ class WholeBlock(nn.Module):
         super().__init__()
         DOWN = 8
         self.block = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=in_channels//DOWN, kernel_size=3, padding=1),
+            nn.Conv2d(in_channels=in_channels, out_channels=in_channels//DOWN, kernel_size=3 if not last else 17, padding=1 if not last else 17//2, 
+                      padding_mode='zeros' if not last else 'reflect'),
             nn.BatchNorm2d(in_channels//DOWN),
         )
         if not last:
