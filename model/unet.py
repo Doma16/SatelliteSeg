@@ -61,7 +61,7 @@ class decoding_block(nn.Module):
 
         output2 = self.up(input2)
 
-        output1 = nn.functional.upsample(input1, output2.size()[2:], mode='bilinear')
+        output1 = nn.functional.interpolate(input1, output2.size()[2:], mode='bilinear')
 
         return self.conv(torch.cat([output1, output2], 1))
 
@@ -72,7 +72,7 @@ class UNet(nn.Module):
     """
     def __init__(self, num_classes=1):
         super().__init__()
-
+        self.name = 'UNet'
         # encoding
         self.conv1 = encoding_block(3, 64)
         self.maxpool1 = nn.MaxPool2d(kernel_size=2)
@@ -126,7 +126,7 @@ class UNet(nn.Module):
         decode1 = self.decode1(conv1, decode2)
 
         # final
-        final = nn.functional.upsample(self.final(decode1), input.size()[2:], mode='bilinear')
+        final = nn.functional.interpolate(self.final(decode1), input.size()[2:], mode='bilinear')
 
         return final
 
@@ -137,7 +137,7 @@ class UNetSmall(nn.Module):
     """
     def __init__(self, num_classes=1):
         super().__init__()
-
+        self.name = 'UNetSmall'
         # encoding
         self.conv1 = encoding_block(3, 32)
         self.maxpool1 = nn.MaxPool2d(kernel_size=2)
@@ -191,7 +191,7 @@ class UNetSmall(nn.Module):
         decode1 = self.decode1(conv1, decode2)
 
         # final
-        final = nn.functional.upsample(self.final(decode1), input.size()[2:], mode='bilinear')
+        final = nn.functional.interpolate(self.final(decode1), input.size()[2:], mode='bilinear')
 
         return final
 

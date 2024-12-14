@@ -1,6 +1,8 @@
 from Dataset import SatDataset
 from Transform import Transform
 from model.our_model import WholeModel
+from model.unet import UNet, UNetSmall
+
 from utils import read_json_variable, get_save_name
 from config import DTYPE, config
 
@@ -11,7 +13,7 @@ import os
 import matplotlib.pyplot as plt
 
 
-VISUALIZE = True
+VISUALIZE = False
 
 def visualize(image, gt):
     nimg = image.cpu().numpy()
@@ -80,7 +82,8 @@ def main():
     train_dataset = SatDataset(train_path, transform=transform)
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=False)
 
-    model = WholeModel().to(device, dtype=DTYPE)
+    #model = WholeModel().to(device, dtype=DTYPE)
+    model = UNet(num_classes=1).to(device, dtype=DTYPE)
     load_path = read_json_variable('paths.json', 'save_path')
     load_path = os.path.join(load_path, get_save_name(model, config)+'.pth')
     model.load_state_dict(torch.load(load_path, map_location=device))

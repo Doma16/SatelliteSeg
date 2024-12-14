@@ -2,8 +2,8 @@ import random
 import torch
 from Dataset import SatDataset
 from Transform import Transform
-from sklearn.model_selection import KFold
 
+from config import BATCH_SIZE, SHUFFLE
 
 def cross_validation(n_splits=5):
     transform = Transform()
@@ -14,7 +14,9 @@ def cross_validation(n_splits=5):
     
     random.seed(42)
     random.shuffle(ids)
-    
+
+    loaders = []
+
     for split_num in range(n_splits):
         test_start = split_size * split_num
         test_end = test_start + split_size
@@ -26,9 +28,12 @@ def cross_validation(n_splits=5):
         test_subsampler = torch.utils.data.SubsetRandomSampler(test_ids)
         
         trainloader = torch.utils.data.DataLoader(
-            dataset, batch_size=train_batch_size, sampler=train_subsampler
+            dataset, batch_size=BATCH_SIZE, sampler=train_subsampler, shuffle=SHUFFLE
         )
         testloader = torch.utils.data.DataLoader(
-            dataset, batch_size=val_batch_size, sampler=test_subsampler
+            dataset, batch_size=1, sampler=test_subsampler
         )
+
+        loaders.append((trainloader, testloader))
         
+    return loaders

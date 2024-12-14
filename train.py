@@ -1,17 +1,17 @@
-from Dataset import SatDataset
-from Transform import Transform
+from CrossValidation import cross_validation
 from model.our_model import WholeModel
+from model.unet import UNet, UNetSmall
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader
 
 from utils import read_json_variable, get_save_name
+from eval import evaluate
 
 import os
-
-from config import BATCH_SIZE, SHUFFLE, LR, NUM_EPOCHS, DTYPE, config
+from tqdm import tqdm
+from config import LR, NUM_EPOCHS, DTYPE, config
 
 def train(model, dataloader, criterion, optimizer, device):
     model.train()
@@ -34,26 +34,34 @@ def train(model, dataloader, criterion, optimizer, device):
 
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    transform = Transform()
-    train_path = read_json_variable('paths.json', 'training')
-    train_dataset = SatDataset(train_path, transform=transform)
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=SHUFFLE)
-
-    model = WholeModel().to(device, dtype=DTYPE)
-    # torchinfo.summary(model, input_size=(1, 3, 400, 400))
-
+    loaders = cross_validation()
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=LR)
 
-    num_epochs = NUM_EPOCHS
-    for epoch in range(num_epochs):
-        loss = train(model, train_loader, criterion, optimizer, device)
-        print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss:.4f}')
+    precision, recall, f1score = [], [], []
+    for train_loader, test_loader in loaders:
 
-    save_path = read_json_variable('paths.json', 'save_path')
-    save_path = os.path.join(save_path, get_save_name(model, config)+'.pth')
-    torch.save(model.state_dict(), save_path)
+        model = WholeModel().to(device, dtype=DTYPE)
+        optimizer = optim.Adam(model.parameters(), lr=LR)
+
+        num_epochs = NUM_EPOCHS
+        for epoch in tqdm(range(num_epochs)):
+            loss = train(model, train_loader, criterion, optimizer, device)
+            print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss:.4f}')
+
+        save_path = read_json_variable('paths.json', 'save_path')
+        save_path = os.path.join(save_path, get_save_name(model, config)+'cv.pth')
+        torch.save(model.state_dict(), save_path)
+        
+        prec, rec, f1 = evaluate(model, test_loader, device)
+        precision.append(prec)
+        recall.append(rec)
+        f1score.append(f1)
+
+    precision = sum(precision) / len(precision)
+    recall = sum(recall) / len(recall)
+    f1score = sum(f1score) / len(f1score)
+
+    print(f'[CrossValidation] P: {precision*100:.2f} R: {recall*100:.2f} F1: {f1score*100:.2f}')
 
 if __name__ == '__main__':
     main()
