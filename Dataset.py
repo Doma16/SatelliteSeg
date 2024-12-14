@@ -37,8 +37,8 @@ if __name__ == '__main__':
     image, ground_truth = dataset.__getitem__(0)
     
     fig = plt.figure(figsize=(16, 8))
-    ax_image = fig.add_subplot(3, 1, 1)
-    ax_gt = fig.add_subplot(3, 1, 2)
+    ax_image = fig.add_subplot(2, 1, 1)
+    ax_gt = fig.add_subplot(2, 1, 2)
 	
     ax_image.imshow(image)
     ax_gt.imshow(ground_truth)
