@@ -1,5 +1,6 @@
 {
     "resnet9": "model/trained_models/resnet9.pth",
     "training": "data/training",
+    "test": "data/test",
     "save_path": "model/trained_models"
 }

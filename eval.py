@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 
 def visualize(image, gt):
     nimg = image.cpu().numpy()
-    ngt = gt.cpu().numpy()
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     
@@ -22,9 +21,11 @@ def visualize(image, gt):
     axes[0].set_title('Pred')
     axes[0].axis('off')
 
-    axes[1].imshow(ngt, cmap='gray')
-    axes[1].set_title('GT')
-    axes[1].axis('off')
+    if gt is not None:
+        ngt = gt.cpu().numpy()
+        axes[1].imshow(ngt, cmap='gray')
+        axes[1].set_title('GT')
+        axes[1].axis('off')
 
     plt.tight_layout()
     plt.show()

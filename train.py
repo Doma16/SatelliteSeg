@@ -36,7 +36,7 @@ def train(model, dataloader, criterion, optimizer, device):
 
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    loaders = cross_validation()
+    loaders = cross_validation()[:1]
     criterion = nn.MSELoss()
 
     precision, recall, f1score = [], [], []

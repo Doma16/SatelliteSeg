@@ -15,6 +15,8 @@ import os
 from tqdm import tqdm
 from config import LR, NUM_EPOCHS, DTYPE, config, SHUFFLE, BATCH_SIZE
 
+from losses import BinaryCrossEntropyLoss
+
 def train(model, dataloader, criterion, optimizer, device):
     model.train()
     running_loss = 0.0
@@ -41,7 +43,7 @@ def main():
     dataset = SatDataset(path=read_json_variable('paths.json', 'training'), transform=transform)
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=SHUFFLE)
 
-    model = UNet(num_classes=1).to(device, dtype=DTYPE)
+    model = WholeModel().to(device, dtype=DTYPE)
     optimizer = optim.Adam(model.parameters(), lr=LR)
     criterion = nn.MSELoss()
 
