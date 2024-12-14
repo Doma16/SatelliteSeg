@@ -9,3 +9,5 @@ def read_json_variable(path, var):
     data = read_json(path)
     return data[var]
     
+def count_parameters(model):
+    return sum((x.numel() for x in model.parameters()))
