@@ -2,4 +2,4 @@ data/
 __pycache__/
 .python-version
 *.pth
-
+*.png.npy
