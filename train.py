@@ -11,13 +11,7 @@ from utils import read_json_variable, get_save_name
 
 import os
 
-BATCH_SIZE = 2
-SHUFFLE = True
-LR = 1e-3
-NUM_EPOCHS = 5
-DTYPE = torch.float32
-
-config = [BATCH_SIZE, LR, NUM_EPOCHS, SHUFFLE, DTYPE]
+from config import BATCH_SIZE, SHUFFLE, LR, NUM_EPOCHS, DTYPE, config
 
 def train(model, dataloader, criterion, optimizer, device):
     model.train()
