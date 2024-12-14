@@ -9,7 +9,7 @@ class Transform(torch.nn.Module):
             v2.ToImage(),
             v2.ToDtype(torch.float32),
             v2.Lambda(lambda x: x / 255), 
-            v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            # v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
         ])
         self.gt_transform = v2.Compose([
             v2.Lambda(lambda x: x / x.max()),

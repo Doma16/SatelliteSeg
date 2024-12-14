@@ -16,7 +16,7 @@ from tqdm import tqdm
 from collections import defaultdict
 from config import LR, NUM_EPOCHS, DTYPE, config
 
-from losses import BinaryCrossEntropyLoss
+from losses import BinaryCrossEntropyLoss, BCEDiceLoss
 
 def train(model, dataloader, criterion, optimizer, device):
     model.train()
@@ -40,7 +40,7 @@ def train(model, dataloader, criterion, optimizer, device):
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     loaders = cross_validation()[:1]
-    criterion = BinaryCrossEntropyLoss()
+    criterion = BCEDiceLoss()
 
     precision, recall, f1score = [], [], []
     f1_per_epoch = defaultdict(list)

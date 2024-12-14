@@ -27,7 +27,7 @@ if __name__ == '__main__':
     model = model.eval()
 
     load_model = read_json_variable('paths.json', 'save_path')
-    load_path = os.path.join(load_model, get_save_name(model, config)+'_end.pth')
+    load_path = os.path.join(load_model, get_save_name(model, config)+'cv.pth')
     model.load_state_dict(torch.load(load_path, map_location=device))
 
     transform = Transform()

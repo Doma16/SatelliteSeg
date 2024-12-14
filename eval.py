@@ -9,11 +9,15 @@ from config import DTYPE, config, VISUALIZE
 import torch
 from torch.utils.data import DataLoader
 import os
-
+import cv2
 import matplotlib.pyplot as plt
 
 def visualize(image, gt):
     nimg = image.cpu().numpy()
+
+    # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
+    # nimg = cv2.erode(nimg, kernel=kernel, iterations=2)
+    # nimg = cv2.dilate(nimg, kernel=kernel, iterations=3)
 
     fig, axes = plt.subplots(1, 2, figsize=(10, 5))
     
