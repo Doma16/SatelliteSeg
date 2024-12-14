@@ -7,7 +7,12 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
-
+from losses import (
+    MSELoss,
+    BinaryCrossEntropyLoss,
+    BCEDiceLoss,
+    IoULoss,
+)
 from utils import read_json_variable, get_save_name
 from eval import evaluate
 
@@ -45,8 +50,7 @@ def main():
 
     model = WholeModel().to(device, dtype=DTYPE)
     optimizer = optim.Adam(model.parameters(), lr=LR)
-    criterion = nn.MSELoss()
-
+    criterion = BCEDiceLoss()
 
     num_epochs = NUM_EPOCHS
     pbar = tqdm(range(num_epochs))
