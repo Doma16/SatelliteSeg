@@ -1,6 +1,7 @@
 from Dataset import SatDataset
 from Transform import Transform
 from model.our_model import WholeModel
+from model.unet import UNet
 
 import torch
 import torch.nn as nn
@@ -40,7 +41,7 @@ def main():
     dataset = SatDataset(path=read_json_variable('paths.json', 'training'), transform=transform)
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=SHUFFLE)
 
-    model = WholeModel().to(device, dtype=DTYPE)
+    model = UNet(num_classes=1).to(device, dtype=DTYPE)
     optimizer = optim.Adam(model.parameters(), lr=LR)
     criterion = nn.MSELoss()
 

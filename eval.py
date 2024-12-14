@@ -4,16 +4,13 @@ from model.our_model import WholeModel
 from model.unet import UNet, UNetSmall
 
 from utils import read_json_variable, get_save_name
-from config import DTYPE, config
+from config import DTYPE, config, VISUALIZE
 
 import torch
 from torch.utils.data import DataLoader
 import os
 
 import matplotlib.pyplot as plt
-
-
-VISUALIZE = True
 
 def visualize(image, gt):
     nimg = image.cpu().numpy()
