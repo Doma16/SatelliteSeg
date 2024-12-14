@@ -3,6 +3,7 @@ import torch.nn as nn
 import torchinfo
 
 from utils import read_json_variable, count_parameters
+import segmentation_models_pytorch as smp
 
 RESNET9_PATH = read_json_variable('paths.json', 'resnet9')
 
@@ -102,28 +103,45 @@ class WholeModel(nn.Module):
         out = self.backbone(xb)
         out = self.decoder(out)
         return out
+    
+class Adapter(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.unet = smp.Unet()
+
+    def forward(self, x):
+        return self.unet(x)
+
+    def parameters(self):
+        return self.unet.decoder.parameters()
 
 if __name__ == '__main__':
     N = 2
     '''
     PatchModel
     '''
-    model = PatchModel()
-    torchinfo.summary(model, input_size=(1, 3, 32, 32), device='cpu')
+    # model = PatchModel()
+    # torchinfo.summary(model, input_size=(1, 3, 32, 32), device='cpu')
 
-    patches = torch.rand((N, 3, 16, 16)).to('cpu')
-    out = model(patches)
-    print(count_parameters(model))
+    # patches = torch.rand((N, 3, 16, 16)).to('cpu')
+    # out = model(patches)
+    # print(count_parameters(model))
     
 
-    '''
-    WholeModel
-    '''
-    model = WholeModel()
-    torchinfo.summary(model, input_size=(1, 3, 32, 32), device='cpu')
+    # '''
+    # WholeModel
+    # '''
+    # model = WholeModel()
+    # torchinfo.summary(model, input_size=(1, 3, 32, 32), device='cpu')
 
-    print(count_parameters(model.backbone))
-    print(count_parameters(model.decoder))
+    # print(count_parameters(model.backbone))
+    # print(count_parameters(model.decoder))
 
-    images = torch.randn((N, 3, 400, 400)).to('cpu')
-    out = model(images)
+    images = torch.randn((N, 3, 416, 416)).to('cpu')
+    # out = model(images)
+
+    '''
+    UNet
+    '''
+    model = smp.Unet()
+    breakpoint()

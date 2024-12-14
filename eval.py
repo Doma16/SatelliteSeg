@@ -23,6 +23,8 @@ def visualize(image, gt):
 
     if gt is not None:
         ngt = gt.cpu().numpy()
+        if ngt.ndim == 3:
+            ngt = gt.permute(1,2,0).cpu().numpy()
         axes[1].imshow(ngt, cmap='gray')
         axes[1].set_title('GT')
         axes[1].axis('off')
@@ -81,7 +83,7 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=False)
 
     #model = WholeModel().to(device, dtype=DTYPE)
-    model = WholeModel().to(device, dtype=DTYPE)
+    model = UNet(num_classes=1).to(device, dtype=DTYPE)
     load_path = read_json_variable('paths.json', 'save_path')
     load_path = os.path.join(load_path, get_save_name(model, config)+'_end.pth')
     model.load_state_dict(torch.load(load_path, map_location=device))

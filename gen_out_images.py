@@ -53,7 +53,7 @@ if __name__ == '__main__':
         out = torch.clamp(out, min=0.0, max=1.0)
         out = torch.round(out)
 
-        # visualize(out[0, 0], None)
+        visualize(out[0, 0], image[0])
 
         out_name = f'{int(test_dir.split("_")[-1]):03d}' + '.npy'
         out = out.cpu().numpy()[0]

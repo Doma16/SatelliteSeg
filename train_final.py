@@ -1,6 +1,6 @@
 from Dataset import SatDataset
-from Transform import Transform
-from model.our_model import WholeModel
+from Transform import Transform, AdapterTransform
+from model.our_model import WholeModel, Adapter
 from model.unet import UNet
 
 import torch
@@ -15,8 +15,6 @@ import os
 from tqdm import tqdm
 from config import LR, NUM_EPOCHS, DTYPE, config, SHUFFLE, BATCH_SIZE
 
-from losses import BinaryCrossEntropyLoss
-
 def train(model, dataloader, criterion, optimizer, device):
     model.train()
     running_loss = 0.0
@@ -25,6 +23,7 @@ def train(model, dataloader, criterion, optimizer, device):
 
         #forward
         out = model(img)
+        breakpoint()
         loss = criterion(out, gt)
 
         #backward
@@ -39,11 +38,11 @@ def train(model, dataloader, criterion, optimizer, device):
 def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-    transform = Transform()
+    transform = AdapterTransform()
     dataset = SatDataset(path=read_json_variable('paths.json', 'training'), transform=transform)
     loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=SHUFFLE)
 
-    model = WholeModel().to(device, dtype=DTYPE)
+    model = Adapter().to(device, dtype=DTYPE)
     optimizer = optim.Adam(model.parameters(), lr=LR)
     criterion = nn.MSELoss()
 
