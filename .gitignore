@@ -5,3 +5,5 @@ __pycache__/
 *.png.npy
 *.json
 model/trained_models/
+proba/
+*.csv

@@ -5,6 +5,6 @@ SHUFFLE = True
 LR = 1e-4
 DTYPE = torch.float32
 NUM_EPOCHS = 50
-VISUALIZE = False
+VISUALIZE = True
 
 config = [BATCH_SIZE, LR, NUM_EPOCHS, SHUFFLE, DTYPE]

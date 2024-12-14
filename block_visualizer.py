@@ -45,6 +45,6 @@ def block_visualize(path_to_csv, test_data_path, out_path):
     
 
 if __name__ == '__main__':
-    # block_visualize("./proba/out.csv", "data/test", "proba/slike")
-    sort_csv("./proba/out.csv")  
+    block_visualize("./model/trained_models/UNet_2_0.0001_50_True_torch.float32/sub.csv", "data/test", "proba/slike")
+    sort_csv("./model/trained_models/UNet_2_0.0001_50_True_torch.float32/sub.csv")  
     

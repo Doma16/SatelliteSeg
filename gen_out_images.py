@@ -26,6 +26,10 @@ if __name__ == '__main__':
     model = UNet(num_classes=1).to(device)
     model = model.eval()
 
+    load_model = read_json_variable('paths.json', 'save_path')
+    load_path = os.path.join(load_model, get_save_name(model, config)+'_end.pth')
+    model.load_state_dict(torch.load(load_path, map_location=device))
+
     transform = Transform()
     path = read_json_variable('paths.json', 'test')
     
@@ -46,7 +50,10 @@ if __name__ == '__main__':
         with torch.no_grad():
             out = model(image)
 
-        visualize(out[0, 0], None)
+        out = torch.clamp(out, min=0.0, max=1.0)
+        out = torch.round(out)
+
+        # visualize(out[0, 0], None)
 
         out_name = f'{int(test_dir.split("_")[-1]):03d}' + '.npy'
         out = out.cpu().numpy()[0]
