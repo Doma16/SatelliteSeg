@@ -1,5 +1,5 @@
 from Dataset import SatDataset
-from Transform import Transform
+from Transform import Transform, EvalTransform
 from model.our_model import WholeModel
 from model.unet import UNet, UNetSmall
 
@@ -81,9 +81,10 @@ def main():
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     transform = Transform()
+    val_transform = EvalTransform()
 
     train_path = read_json_variable('paths.json', 'training')
-    train_dataset = SatDataset(train_path, transform=transform)
+    train_dataset = SatDataset(train_path, transform=transform, val_transform=val_transform)
     train_loader = DataLoader(train_dataset, batch_size=1, shuffle=False)
 
     #model = WholeModel().to(device, dtype=DTYPE)

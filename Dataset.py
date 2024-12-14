@@ -4,15 +4,18 @@ from torch.utils.data import Dataset
 import matplotlib.pyplot as plt
 
 class SatDataset(Dataset):
-    def __init__(self, path, transform=None):
+    def __init__(self, path, transform=None, val_transform=None):
         super().__init__()
         self.image_extension = ".png"
         self.transform = transform
+        self.val_transform = val_transform
         
         self.ground_truth_path = os.path.join(path, "groundtruth")
         self.images_path = os.path.join(path, "images")
         self.size = len(os.listdir(self.images_path))
         
+        self.test_ids = list(range(self.size))
+        self.train_ids = []
         assert self.size == len(os.listdir(self.ground_truth_path))
         
     def __len__(self):
@@ -27,8 +30,10 @@ class SatDataset(Dataset):
         image = cv2.imread(os.path.join(self.images_path, file_name), cv2.IMREAD_UNCHANGED)
         ground_truth = cv2.imread(os.path.join(self.ground_truth_path, file_name), cv2.IMREAD_GRAYSCALE)
         
-        if self.transform:
-            image, ground_truth = self.transform(image, ground_truth)
+        flag = index not in self.test_ids
+        t = self.transform if flag else self.val_transform 
+        if t:
+            image, ground_truth = t(image, ground_truth)
         
         return image, ground_truth
     
