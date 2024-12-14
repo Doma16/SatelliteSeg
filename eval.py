@@ -86,7 +86,7 @@ def main():
     model = UNet(num_classes=1).to(device, dtype=DTYPE)
     load_path = read_json_variable('paths.json', 'save_path')
     load_path = os.path.join(load_path, get_save_name(model, config)+'cv.pth')
-    model.load_state_dict(torch.load(load_path, map_location=device))
+    model.load_state_dict(torch.load(load_path, map_location=device), strict=False)
     # torchinfo.summary(model, input_size=(1, 3, 400, 400))
 
     precision, recall, f1score = evaluate(model, train_loader, device)
