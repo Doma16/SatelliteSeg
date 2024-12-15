@@ -15,11 +15,11 @@ class SatDataset(Dataset):
         self.ground_truth_path = os.path.join(path, "groundtruth")
         self.images_path = os.path.join(path, "images")
         
-        n = len(self.ground_truth_path)
-        n = int(n * 0.8 if self.train else n * 0.2)
-        
         self.images_path = os.listdir(self.images_path)
         self.ground_truth_path = os.listdir(self.ground_truth_path)
+        
+        n = len(self.ground_truth_path)
+        # n = int(n * 0.8 if self.train else n * 0.2)
 
         self.images_path = self.images_path[:n] if self.train else self.images_path[-n:] 
         self.ground_truth_path= self.ground_truth_path[:n] if self.train else self.ground_truth_path[-n:] 
@@ -28,7 +28,6 @@ class SatDataset(Dataset):
         return len(self.images_path)
     
     def __getitem__(self, index):
-        
         image = cv2.imread(os.path.join(self.path, "images", self.images_path[index]), cv2.IMREAD_UNCHANGED)
         ground_truth = cv2.imread(os.path.join(self.path, "groundtruth", self.ground_truth_path[index]), cv2.IMREAD_GRAYSCALE)
         

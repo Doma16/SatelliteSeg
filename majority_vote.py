@@ -65,8 +65,8 @@ def majority_vote(models):
             models_out = []
             for model in models:
                 out = model(image)
-                out = torch.clamp(out, min=0.0, max=1.0)
-                out = torch.round(out)
+                # out = torch.clamp(out, min=0.0, max=1.0)
+                # out = torch.round(out)
                 models_out.append(out.cpu().numpy())
             
             

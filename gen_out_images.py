@@ -3,7 +3,7 @@ from Transform import Transform, EvalTransform
 
 from utils import read_json_variable, get_save_name
 from model.our_model import WholeModel, Adapter
-from model.unet import UNet
+from model.unet import UNet, SMPUNET
 from config import config
 from eval import visualize, vis_np
 
@@ -23,12 +23,13 @@ def patch_to_label(p):
 
 if __name__ == '__main__':
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model = UNet().to(device)
+    model = SMPUNET().to(device)
     model.eval()
 
     load_model = read_json_variable('paths.json', 'save_path')
-    load_path = os.path.join(load_model, get_save_name(model, config)+'_end.pth')
+    load_path = os.path.join(load_model, get_save_name(model, config)+'.pth')
     model.load_state_dict(torch.load(load_path, map_location=device))
+    model = model.to(device)
 
     transform = EvalTransform()
     path = read_json_variable('paths.json', 'test')
@@ -50,10 +51,7 @@ if __name__ == '__main__':
         with torch.no_grad():
             out = model(image)
 
-        out = torch.sigmoid(out)
-        out = torch.clamp(out, min=0.0, max=1.0)
         out = torch.round(out)
-
         # visualize(out[0, 0], image[0])
 
         out_name = f'{int(test_dir.split("_")[-1]):03d}' + '.npy'
@@ -61,11 +59,11 @@ if __name__ == '__main__':
 
         nimg = out
         # kernel_ero = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
+        # nimg = cv2.dilate(nimg, kernel=kernel, iterations=2)
         # nimg = cv2.erode(nimg, kernel=kernel_ero, iterations=1)
-        # nimg = cv2.dilate(nimg, kernel=kernel, iterations=1)
 
-        # vis_np(nimg, image[0])
+        vis_np(nimg, image[0])
 
         np.save(os.path.join(out_path, out_name), out)
 

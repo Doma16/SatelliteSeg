@@ -9,6 +9,7 @@ import segmentation_models_pytorch as smp
 class SMPUNET(nn.Module):
     def __init__(self):
         super().__init__()
+        self.name = 'SMPUNET'
         self.unet = smp.Unet(
             encoder_name = 'resnet34',
             encoder_depth = 5, 

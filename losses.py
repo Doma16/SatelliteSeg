@@ -17,7 +17,7 @@ class BinaryCrossEntropyLoss(nn.Module):
         super(BinaryCrossEntropyLoss, self).__init__()
 
     def forward(self, pred, gt):
-        return F.binary_cross_entropy_with_logits(pred, gt)
+        return F.binary_cross_entropy(pred, gt)
 
 
 class BCEDiceLoss(nn.Module):

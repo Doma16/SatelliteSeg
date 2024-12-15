@@ -1,10 +1,6 @@
-from CrossValidation import cross_validation
-from model.our_model import WholeModel, Adapter
-from model.unet import UNet, UNetSmall, SMPUNET
-import segmentation_models_pytorch as smp
+from model.unet import  SMPUNET
 
 import torch
-import torch.nn as nn
 import torch.optim as optim
 
 from utils import read_json_variable, get_save_name
@@ -17,7 +13,8 @@ from collections import defaultdict
 from config import LR, NUM_EPOCHS, DTYPE, config, BATCH_SIZE, SHUFFLE
 from Dataset import SatDataset
 from Transform import Transform, EvalTransform
-from losses import BCEDiceLoss
+import torch.nn as nn
+from losses import BCEDiceLoss, BinaryCrossEntropyLoss, IoULoss
 from torch.utils.data import DataLoader
 
 def train(model, dataloader, criterion, optimizer, device):
@@ -29,6 +26,7 @@ def train(model, dataloader, criterion, optimizer, device):
         #forward
         out = model(img)
         loss = criterion(out, gt)
+        # loss += nn.BCELoss()(out, gt)
 
         #backward
         optimizer.zero_grad()
@@ -51,9 +49,8 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=SHUFFLE)
     test_loader = DataLoader(val_ds, batch_size=1, shuffle=False)
 
-    criterion = BCEDiceLoss()
+    criterion = BinaryCrossEntropyLoss()
 
-    precision, recall, f1score = [], [], []
     per_epoch = defaultdict(list)
 
     # Initialize the model
@@ -66,27 +63,18 @@ def main():
         loss = train(model, train_loader, criterion, optimizer, device)
         print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss:.4f}')
         prec, rec, f1 = evaluate(model, test_loader, device)
-        per_epoch['f1'].append(f1)
+        per_epoch['f1'].append(f1.item())
         per_epoch['loss'].append(loss)
         print(f'Metrics: prec: {prec*100:.2f} rec: {rec*100:.2f} f1: {f1*100:.2f}')
 
-        precision.append(prec)
-        recall.append(rec)
-        f1score.append(f1)
-    
     save_path = read_json_variable('paths.json', 'save_path')
     save_path = os.path.join(save_path, get_save_name(model, config)+'.pth')
     torch.save(model.state_dict(), save_path)
     
-    precision = sum(precision) / len(precision)
-    recall = sum(recall) / len(recall)
-    f1score = sum(f1score) / len(f1score)
-    
     save_f1_path = read_json_variable('paths.json', 'save_path')
     save_f1_name = get_save_name(model, config) + '_score.json'
     with open(os.path.join(save_f1_path, save_f1_name), 'w') as f:
-        json.dump(per_epoch, f, indent=4)
-    print(f'[Test] P: {precision*100:.2f} R: {recall*100:.2f} F1: {f1score*100:.2f}')
+        json.dump(dict(per_epoch), f, indent=4)
 
 if __name__ == '__main__':
     main()
