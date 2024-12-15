@@ -2,6 +2,7 @@ import os
 
 import torch
 import cv2
+import numpy as np
 from model.unet import UNet
 from Dataset import Dataset
 from Transform import EvalTransform
@@ -10,21 +11,32 @@ from gen_out_images import patch_to_label
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 threshold = 0.25
-load_paths = [...]
+load_paths = ['model/trained_models/UNet_1_0.0001_30_True_torch.float32cv_1.pth',
+              'model/trained_models/UNet_1_0.0001_30_True_torch.float32cv_2.pth',
+              'model/trained_models/UNet_1_0.0001_30_True_torch.float32cv_3.pth']
 NUM_MODELS = len(load_paths)
 
 def final_vote(models_output, im_id):
     out_str = []
-    models_patch_label = []
+    models_patches_labels = []
     patch_size = 16
-    for j in range(0, output.shape[1], patch_size):
-        for i in range(0, output.shape[0], patch_size):
-            for output in models_output:
+    for output in models_output:
+        patches_labels = []
+        for j in range(0, output.shape[-1], patch_size):
+            for i in range(0, output.shape[-2], patch_size):
                 patch = output[i:i + patch_size, j:j+ patch_size]
                 model_patch_label = patch_to_label(patch)
-                models_patch_label.append(model_patch_label)
-            final_vote = sum(models_patch_label) >= NUM_MODELS // 2
-            out_str.append(f'{int(im_id):03d}_{i}_{j},{final_vote}\n')
+                patches_labels.append(model_patch_label)
+        models_patches_labels.append(patches_labels)
+    
+    models_patches_labels = np.array(models_patches_labels)
+    votes = np.sum(models_patches_labels, axis=0)
+    final_vote = (votes >= NUM_MODELS // 2).astype(np.uint8)
+    cnt = 0
+    for j in range(0, output.shape[-1], patch_size):
+        for i in range(0, output.shape[-2], patch_size):
+            out_str.append(f'{int(im_id):03d}_{i}_{j},{final_vote[cnt]}\n')
+            cnt += 1
     
     return out_str
             
