@@ -107,13 +107,18 @@ class WholeModel(nn.Module):
 class Adapter(nn.Module):
     def __init__(self):
         super().__init__()
+        self.name = 'Adapter'
         self.unet = smp.Unet()
+        self.unet.encoder.eval()
 
     def forward(self, x):
         return self.unet(x)
 
     def parameters(self):
         return self.unet.decoder.parameters()
+
+    def train(self, flag=True):
+        self.unet.decoder.train(flag)
 
 if __name__ == '__main__':
     N = 2

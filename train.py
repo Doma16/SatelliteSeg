@@ -1,5 +1,5 @@
 from CrossValidation import cross_validation
-from model.our_model import WholeModel
+from model.our_model import WholeModel, Adapter
 from model.unet import UNet, UNetSmall
 import segmentation_models_pytorch as smp
 

@@ -1,7 +1,7 @@
 import random
 import torch
 from Dataset import SatDataset
-from Transform import Transform, EvalTransform
+from Transform import Transform, EvalTransform, AdapterTransform
 
 from config import BATCH_SIZE
 

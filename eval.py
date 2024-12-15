@@ -1,5 +1,5 @@
 from Dataset import SatDataset
-from Transform import Transform, EvalTransform
+from Transform import Transform, EvalTransform, AdapterTransform
 from model.our_model import WholeModel
 from model.unet import UNet, UNetSmall
 
@@ -11,6 +11,26 @@ from torch.utils.data import DataLoader
 import os
 import cv2
 import matplotlib.pyplot as plt
+
+def vis_np(image, gt):
+    nimg = image
+
+    fig, axes = plt.subplots(1, 2, figsize=(10, 5))
+    
+    axes[0].imshow(nimg, cmap='gray')
+    axes[0].set_title('Pred')
+    axes[0].axis('off')
+
+    if gt is not None:
+        ngt = gt.cpu().numpy()
+        if ngt.ndim == 3:
+            ngt = gt.permute(1,2,0).cpu().numpy()
+        axes[1].imshow(ngt, cmap='gray')
+        axes[1].set_title('GT')
+        axes[1].axis('off')
+
+    plt.tight_layout()
+    plt.show()
 
 def visualize(image, gt):
     nimg = image.cpu().numpy()
@@ -48,6 +68,7 @@ def evaluate(model, dataloader, device):
             img, gt = img.to(device, dtype=DTYPE), gt.to(device, dtype=DTYPE)
 
             out = model(img)
+            out = torch.sigmoid(out)
 
             out = torch.clamp(out, min=0, max=1)
             out = torch.round(out, decimals=0)

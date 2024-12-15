@@ -30,7 +30,7 @@ class BCEDiceLoss(nn.Module):
         bce_loss = F.binary_cross_entropy_with_logits(pred, gt)
         pred = torch.sigmoid(pred)
         intersection = (pred * gt).sum(dim=(1, 2, 3))
-        union = pred.sum(dim=(1, 2, 3)) + gt.sum(dim=(1, 2, 3)) - intersection
+        union = pred.sum(dim=(1, 2, 3)) + gt.sum(dim=(1, 2, 3))
         dice_loss = 1 - (2. * intersection + self.smooth) / (union + self.smooth)
 
         total_loss = self.bce_weight * bce_loss + (1 - self.bce_weight) * dice_loss.mean()
