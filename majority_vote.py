@@ -11,9 +11,8 @@ from gen_out_images import patch_to_label
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 threshold = 0.25
-load_paths = ['model/trained_models/UNet_1_0.0001_30_True_torch.float32cv_1.pth',
-              'model/trained_models/UNet_1_0.0001_30_True_torch.float32cv_2.pth',
-              'model/trained_models/UNet_1_0.0001_30_True_torch.float32cv_3.pth']
+load_paths = ['model/trained_models/mv1_SMPUNET_32_0.0001_100_True_torch.float32.pth',
+              'model/trained_models/mv2_SMPUNET_32_0.0001_100_True_torch.float32.pth',]
 NUM_MODELS = len(load_paths)
 
 def final_vote(models_output, im_id):
@@ -28,7 +27,7 @@ def final_vote(models_output, im_id):
                 model_patch_label = patch_to_label(patch)
                 patches_labels.append(model_patch_label)
         models_patches_labels.append(patches_labels)
-    
+    breakpoint()
     models_patches_labels = np.array(models_patches_labels)
     votes = np.sum(models_patches_labels, axis=0)
     final_vote = (votes >= NUM_MODELS // 2).astype(np.uint8)
@@ -41,7 +40,7 @@ def final_vote(models_output, im_id):
     return out_str
             
 
-def majority_vote(models):
+def majority_vote(models, device='cpu'):
     transform = EvalTransform()
     path = read_json_variable('paths.json', 'test')
     out_path = read_json_variable('paths.json', 'save_path')
@@ -59,6 +58,7 @@ def majority_vote(models):
 
         image = transform.image_transform(test_image)
         image = image.unsqueeze(0)
+        image = image.to(device)
         out = None
         out_str = []
         with torch.no_grad():
@@ -71,7 +71,7 @@ def majority_vote(models):
             
             
             out_str.append(final_vote(models_out, im_id))
-            breakpoint()
+
     for line in out_str:
             csvf.write(line)
     csvf.close()
@@ -87,7 +87,7 @@ def main():
         model = model.to(device)
         models.append(model)
 
-    majority_vote(models=models)
+    majority_vote(models=models, device=device)
 
 
 if __name__ == '__main__':

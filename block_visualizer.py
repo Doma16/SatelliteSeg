@@ -20,7 +20,6 @@ def sort_csv(path_to_csv, out_path="send.csv"):
 def block_visualize(path_to_csv, test_data_path, out_path):
     os.makedirs(out_path, exist_ok=True)
     df = pd.read_csv(path_to_csv)
-    
     for i in range(1, 51):
         id = ("0" * (3 - len(str(i)))) + str(i)
         current_df = df[df["id"].str.startswith(id)]
@@ -45,6 +44,6 @@ def block_visualize(path_to_csv, test_data_path, out_path):
     
 
 if __name__ == '__main__':
-    model_path = './model/trained_models/UNet_2_0.0001_60_True_torch.float32/sub.csv'
+    model_path = './out.csv'
     block_visualize(model_path, "data/test", "proba/slike")
     sort_csv(model_path)  

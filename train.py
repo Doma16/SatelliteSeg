@@ -49,7 +49,7 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=BATCH_SIZE, shuffle=SHUFFLE)
     test_loader = DataLoader(val_ds, batch_size=1, shuffle=False)
 
-    criterion = BinaryCrossEntropyLoss()
+    criterion = IoULoss()
 
     per_epoch = defaultdict(list)
 

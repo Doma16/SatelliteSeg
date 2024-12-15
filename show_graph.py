@@ -3,7 +3,7 @@ import json
 import matplotlib.pyplot as plt
 
 file = 'model/trained_models/'
-model = 'SMPUNET_32_0.0001_300_True_torch.float32_score.json'
+model = 'SMPUNET_32_0.0001_100_True_torch.float32_score.json'
 path = os.path.join(file, model)
 
 with open(path, 'r') as f:

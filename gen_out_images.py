@@ -12,8 +12,10 @@ import torch
 import os
 import cv2
 
+from collections import defaultdict
+import matplotlib.pyplot as plt
 
-threshold = 0.25
+threshold = 0.30
 def patch_to_label(p):
     mean = np.mean(p)
     if mean > threshold:
@@ -21,13 +23,13 @@ def patch_to_label(p):
     else:
         return 0
 
-if __name__ == '__main__':
+def main():
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = SMPUNET().to(device)
     model.eval()
 
     load_model = read_json_variable('paths.json', 'save_path')
-    load_path = os.path.join(load_model, get_save_name(model, config)+'.pth')
+    load_path = os.path.join(f'{load_model}', f'mv2_{get_save_name(model, config)}'+'.pth')
     model.load_state_dict(torch.load(load_path, map_location=device))
     model = model.to(device)
 
@@ -51,7 +53,7 @@ if __name__ == '__main__':
         with torch.no_grad():
             out = model(image)
 
-        out = torch.round(out)
+        # out = torch.round(out)
         # visualize(out[0, 0], image[0])
 
         out_name = f'{int(test_dir.split("_")[-1]):03d}' + '.npy'
@@ -59,11 +61,11 @@ if __name__ == '__main__':
 
         nimg = out
         # kernel_ero = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-        # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (9, 9))
-        # nimg = cv2.dilate(nimg, kernel=kernel, iterations=2)
+        # kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        # nimg = cv2.dilate(nimg, kernel=kernel, iterations=1)
         # nimg = cv2.erode(nimg, kernel=kernel_ero, iterations=1)
 
-        vis_np(nimg, image[0])
+        # vis_np(nimg, image[0])
 
         np.save(os.path.join(out_path, out_name), out)
 
@@ -86,6 +88,42 @@ if __name__ == '__main__':
                 label = patch_to_label(patch)
                 out_str.append(f'{int(im_id):03d}_{i}_{j},{label}\n')
         
+        for line in out_str:
+            csvf.write(line)
+
+    csvf.close()
+
+if __name__ == '__main__':
+    #main()
+
+    paths = ['mv1_SMPUNET_32_0.0001_100_True_torch.float32',
+             'mv1_SMPUNET_32_0.0001_100_True_torch.float32']
+    
+    res = defaultdict(list)
+    for path in paths:
+        npypath = os.path.join('model/trained_models', path)
+        npys = [ x for x in os.listdir(npypath) if '.npy' in x ]
+        
+        for npy in npys:
+            res[npy].append(np.load(os.path.join(npypath, npy)))
+
+    mv = {}
+    for key, arrl in res.items():
+        mv[key] = np.stack(arrl).mean(0)
+
+    csvf = open('./out.csv', 'w')
+    csvf.write('id,prediction\n')
+    for key, im in mv.items():
+        im_id = key.split('.')[0]
+        print(key)
+        out_str = []
+        patch_size = 16
+        for j in range(0, im.shape[1], patch_size):
+            for i in range(0, im.shape[0], patch_size):
+                patch = im[i:i + patch_size, j:j+ patch_size]
+                label = patch_to_label(patch)
+                out_str.append(f'{int(im_id):03d}_{i}_{j},{label}\n')
+
         for line in out_str:
             csvf.write(line)
 

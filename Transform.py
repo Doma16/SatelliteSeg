@@ -61,13 +61,13 @@ class EvalTransform(torch.nn.Module):
             v2.ToDtype(DTYPE),
             v2.Lambda(lambda x: x / 255),
             # v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-            v2.Resize(size=(416, 416), antialias=True)
+            # v2.Resize(size=(416, 416), antialias=True)
         ])
         self.gt_transform = v2.Compose([
             v2.Lambda(lambda x: x / x.max()),
             v2.Lambda(lambda x: x[..., None]),
             v2.ToImage(),
-            v2.Resize(size=(416, 416), antialias=True)
+            # v2.Resize(size=(416, 416), antialias=True)
         ])
 
     def forward(self, image, ground_truth):
