@@ -26,12 +26,21 @@ class Transform(torch.nn.Module):
             v2.RandomRotation(degrees=(-45, 45))
         ])
 
+        self.permute = v2.Compose([
+            v2.PermuteChannels()
+        ])
+
+
+
     def forward(self, image, ground_truth):
         seed = torch.seed()
         torch.manual_seed(seed)
         im = self.rotate(self.flip(self.image_transform(image)))
+        img = self.permute(im)
         torch.manual_seed(seed)
         gt = self.rotate(self.flip(self.gt_transform(ground_truth)))
+        gt = self.permute(gt)
+        
         return im, gt
     
 class EvalTransform(torch.nn.Module):

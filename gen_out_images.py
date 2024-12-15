@@ -1,5 +1,5 @@
 from Dataset import SatDataset
-from Transform import EvalTransform
+from Transform import Transform, EvalTransform
 
 from utils import read_json_variable, get_save_name
 from model.our_model import WholeModel, Adapter
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     model.eval()
 
     load_model = read_json_variable('paths.json', 'save_path')
-    load_path = os.path.join(load_model, get_save_name(model, config)+'cv.pth')
+    load_path = os.path.join(load_model, get_save_name(model, config)+'_end.pth')
     model.load_state_dict(torch.load(load_path, map_location=device))
 
     transform = EvalTransform()
