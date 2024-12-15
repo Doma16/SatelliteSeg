@@ -71,7 +71,7 @@ def majority_vote(models):
             
             
             out_str.append(final_vote(models_out, im_id))
-            
+            breakpoint()
     for line in out_str:
             csvf.write(line)
     csvf.close()
