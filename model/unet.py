@@ -2,6 +2,28 @@ from torch import nn
 
 import torch
 
+from utils import read_json_variable
+
+import segmentation_models_pytorch as smp
+
+class SMPUNET(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.unet = smp.Unet(
+            encoder_name = 'resnet34',
+            encoder_depth = 5, 
+            encoder_weights = 'imagenet',
+            decoder_use_batchnorm = True, 
+            decoder_channels = (256, 128, 64, 32, 16),
+            in_channels = 3,
+            classes = 1,
+            activation = "sigmoid"
+        )
+
+    def forward(self, x):
+        return self.unet(x)
+    
+
 # encoding block
 class encoding_block(nn.Module):
     """
@@ -98,6 +120,10 @@ class UNet(nn.Module):
         # final
         self.final = nn.Conv2d(64, num_classes, kernel_size=1)
 
+        load_path = read_json_variable('paths.json', 'load_path')
+        if load_path:
+            self.load_state_dict(torch.load(load_path), strict=False)
+
     def forward(self, input):
 
         # encoding
@@ -127,7 +153,8 @@ class UNet(nn.Module):
 
         # final
         final = nn.functional.interpolate(self.final(decode1), input.size()[2:], mode='bilinear')
-
+        final = torch.sigmoid(final)
+       
         return final
 
 
@@ -207,16 +234,10 @@ def get_model_size(model):
     print('model size: {:.3f}MB'.format(size_all_mb))
 
 def main():
-    unet = UNet(num_classes=1)
-    get_model_size(model=unet)
-    example = torch.zeros((1, 3, 400, 400))
-    segmentation_out = unet(example)
-    print(segmentation_out.shape)
-
-    unet_small = UNetSmall(num_classes=1)
-    get_model_size(model=unet_small)
-    segmentation_out = unet_small(example)
-    print(segmentation_out.shape)
+    unet = SMPUNET()
+    
+    import torchinfo
+    torchinfo.summary(unet, input_size=(1, 3, 416, 416))
 
 if __name__ == '__main__':
     main()

@@ -10,11 +10,13 @@ class Transform(torch.nn.Module):
             v2.ToDtype(torch.float32),
             v2.Lambda(lambda x: x / 255), 
             # v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+            v2.Resize(size=(416, 416))
         ])
         self.gt_transform = v2.Compose([
             v2.Lambda(lambda x: x / x.max()),
             v2.Lambda(lambda x: x[..., None]),
             v2.ToImage(),
+            v2.Resize(size=(416, 416))
         ])
         
         self.flip = v2.Compose([
@@ -22,24 +24,21 @@ class Transform(torch.nn.Module):
             v2.RandomVerticalFlip(p=0.5),
         ])
 
-        self.rotate = v2.Compose([
-            v2.RandomRotation(degrees=(-45, 45))
-        ])
+        # self.rotate = v2.Compose([
+        #     v2.RandomRotation(degrees=(45, 45)),
+        # ])
 
-        self.permute = v2.Compose([
-            v2.PermuteChannels()
-        ])
-
+        # self.permute = v2.Compose([
+        #     v2.PermuteChannels()
+        # ])
 
 
     def forward(self, image, ground_truth):
         seed = torch.seed()
         torch.manual_seed(seed)
-        im = self.rotate(self.flip(self.image_transform(image)))
-        img = self.permute(im)
+        im = self.flip(self.image_transform(image))
         torch.manual_seed(seed)
-        gt = self.rotate(self.flip(self.gt_transform(ground_truth)))
-        gt = self.permute(gt)
+        gt = self.flip(self.gt_transform(ground_truth))
         
         return im, gt
     

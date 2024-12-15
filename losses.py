@@ -27,8 +27,7 @@ class BCEDiceLoss(nn.Module):
         self.smooth = smooth  # zbog dijeljenja s nulon
 
     def forward(self, pred, gt):
-        bce_loss = F.binary_cross_entropy_with_logits(pred, gt)
-        pred = torch.sigmoid(pred)
+        bce_loss = F.binary_cross_entropy(pred, gt)
         intersection = (pred * gt).sum(dim=(1, 2, 3))
         union = pred.sum(dim=(1, 2, 3)) + gt.sum(dim=(1, 2, 3))
         dice_loss = 1 - (2. * intersection + self.smooth) / (union + self.smooth)
