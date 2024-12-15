@@ -27,7 +27,7 @@ class Transform(torch.nn.Module):
         ])
 
         self.permute = v2.Compose([
-            v2.PermuteChannels(permiut)
+            v2.PermuteChannels()
         ])
 
 
@@ -83,6 +83,5 @@ class AdapterTransform(torch.nn.Module):
         ])
         
     def forward(self, image, ground_truth):
-        breakpoint()
         return self.image_transform(image), self.gt_transform(ground_truth)
     
